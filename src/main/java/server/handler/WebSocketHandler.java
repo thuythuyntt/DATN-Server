@@ -9,8 +9,6 @@ import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-
-
 import server.WebSocketServer;
 import server.WebSocketServerIndexPage;
 import io.netty.buffer.ByteBuf;
@@ -35,29 +33,29 @@ import io.netty.util.CharsetUtil;
 
 public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
 
-	private WebSocketServer server;
-	private WebSocketServerHandshaker handshaker;
-	
-	public WebSocketHandler(WebSocketServer server) {
-		this.server = server;
-	}
-	
-	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, Object obj) throws Exception {
-		if (obj instanceof HttpRequest) {  
-	        handleHttpRequest(ctx, (FullHttpRequest) obj);  
-	    } else if (obj instanceof WebSocketFrame) {
+    private WebSocketServer server;
+    private WebSocketServerHandshaker handshaker;
+
+    public WebSocketHandler(WebSocketServer server) {
+        this.server = server;
+    }
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, Object obj) throws Exception {
+        if (obj instanceof HttpRequest) {
+            handleHttpRequest(ctx, (FullHttpRequest) obj);
+        } else if (obj instanceof WebSocketFrame) {
             handleWebSocketFrame(ctx, (WebSocketFrame) obj);
         }
-	}
-	
-	@Override
+    }
+
+    @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
     }
-	
-	private void handleHttpRequest(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
-	    /// Handle a bad request.
+
+    private void handleHttpRequest(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
+        /// Handle a bad request.
         if (!req.getDecoderResult().isSuccess()) {
             sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST));
             return;
@@ -80,7 +78,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
             sendHttpResponse(ctx, req, res);
             return;
         }
-        
+
         if ("/favicon.ico".equals(req.getUri())) {
             FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
             sendHttpResponse(ctx, req, res);
@@ -95,16 +93,16 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
         } else {
             handshaker.handshake(ctx.channel(), req);
         }
-	}
-	
-	private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
+    }
+
+    private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
         // Check for closing frame
         if (frame instanceof CloseWebSocketFrame) {
             handshaker.close(ctx.channel(), (CloseWebSocketFrame) frame.retain());
             return;
         }
         if (frame instanceof PingWebSocketFrame) {
-        	System.out.println("ping received");
+            System.out.println("ping received");
             ctx.channel().write(new PongWebSocketFrame(frame.content().retain()));
             return;
         }
@@ -139,16 +137,14 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
         cause.printStackTrace();
         ctx.close();
     }
-    
-    public String getWebSocketLocation(FullHttpRequest req) {
-        String location =  req.headers().get(HOST) + server.getWebSocketPath();
-        if (server.isSsl()) {
-            return "wss://" + location;
-        } else {
-            return "ws://" + location;
-        }
-    }
 
-    
+    public String getWebSocketLocation(FullHttpRequest req) {
+        String location = req.headers().get(HOST) + server.getWebSocketPath();
+//        if (server.isSsl()) {
+//            return "wss://" + location;
+//        } else {
+        return "ws://" + location;
+//        }
+    }
 
 }
