@@ -13,6 +13,7 @@ import server.WebSocketServer;
 import server.WebSocketServerIndexPage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -30,14 +31,32 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
+import java.util.ArrayList;
+import java.util.List;
+import model.SocketMessage;
 
 public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
+    private List<Channel> channels = new ArrayList<>();
 
     private WebSocketServer server;
     private WebSocketServerHandshaker handshaker;
 
     public WebSocketHandler(WebSocketServer server) {
         this.server = server;
+    }
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        Channel ch = ctx.channel();
+        System.err.println("[handlerAdded] remoteAddress " + ch.remoteAddress().toString());
+        System.err.println("[handlerAdded] localAddress " + ch.localAddress().toString());
+       // ctx.writeAndFlush("123456");
+        channels.add(ch);
+    }
+
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        channels.remove(ctx.channel());
     }
 
     @Override
@@ -112,8 +131,10 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
         }
 
         // fire channel read for WebSocketTextFrameHandler.
-        String request = ((TextWebSocketFrame) frame).text();
-        ctx.fireChannelRead(new TextWebSocketFrame(request));
+        SocketMessage sm = SocketMessage.fromSocketFrame((TextWebSocketFrame) frame);
+        System.err.println("SocketMessage: " + sm.toString());
+        //String request = ((TextWebSocketFrame) frame).text();
+        //ctx.fireChannelRead(new TextWebSocketFrame(request));
     }
 
     private static void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, FullHttpResponse res) {
