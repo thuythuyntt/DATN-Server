@@ -55,4 +55,14 @@ public class SocketMessage {
         Gson gson = new Gson();
         return gson.fromJson(frame.text(), SocketMessage.class);
     }
+        
+    public String toJsonString() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
+    }
+
+    public static SocketMessage fromJsonString(String json) {
+        Gson gson = new Gson();
+        return gson.fromJson(json, SocketMessage.class);
+    }
 }
