@@ -52,6 +52,11 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
         System.err.println("[handlerAdded] localAddress " + ch.localAddress().toString());
        // ctx.writeAndFlush("123456");
         channels.add(ch);
+        
+//        SocketMessage sm = new SocketMessage();
+//        sm.setId("xxx");
+//        sm.setText("yyy");
+//        ctx.channel().writeAndFlush(sm).sync();
     }
 
     @Override
@@ -61,12 +66,24 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object obj) throws Exception {
+        System.err.println("channelRead0");
         if (obj instanceof HttpRequest) {
             handleHttpRequest(ctx, (FullHttpRequest) obj);
         } else if (obj instanceof WebSocketFrame) {
             handleWebSocketFrame(ctx, (WebSocketFrame) obj);
+        } else if (obj instanceof SocketMessage){
+            ChannelFuture future = ctx.writeAndFlush(new SocketMessage("id", "aaaaaa"));
+            future.addListener(ChannelFutureListener.CLOSE);
         }
     }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        super.channelRead(ctx, msg); //To change body of generated methods, choose Tools | Templates.
+        System.err.println("channelRead");
+    }
+    
+    
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
@@ -115,6 +132,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
+        System.err.println("handleWebSocketFrame");
         // Check for closing frame
         if (frame instanceof CloseWebSocketFrame) {
             handshaker.close(ctx.channel(), (CloseWebSocketFrame) frame.retain());

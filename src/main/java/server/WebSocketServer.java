@@ -39,6 +39,7 @@ public class WebSocketServer {
         } catch (InterruptedException ex) {
             Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
+            System.err.println("SHUTDOWN SERVER");
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
