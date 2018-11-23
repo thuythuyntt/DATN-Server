@@ -16,28 +16,22 @@ import model.SocketMessage;
  *
  * @author nguyen.thi.thu.thuy
  */
- public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
+public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
+
     private List<Channel> channels = new ArrayList<>();
-    
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        //String message = "message from server.";
-        //System.out.println("Sending message: " + message);
-        //ctx.writeAndFlush(message + System.lineSeparator());
+
     }
-    
+
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         Channel ch = ctx.channel();
         System.err.println("[handlerAdded] remoteAddress " + ch.remoteAddress().toString());
         System.err.println("[handlerAdded] localAddress " + ch.localAddress().toString());
-       // ctx.writeAndFlush("123456");
         channels.add(ch);
-        
-//        SocketMessage sm = new SocketMessage();
-//        sm.setId("xxx");
-//        sm.setText("yyy");
-//        ctx.channel().writeAndFlush(sm).sync();
+
     }
 
     @Override

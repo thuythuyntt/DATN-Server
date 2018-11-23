@@ -1,7 +1,6 @@
 package server;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
@@ -12,9 +11,6 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,7 +25,7 @@ public class WebSocketServer {
     }
 
     public void run() {
-        
+
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -41,8 +37,6 @@ public class WebSocketServer {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().addLast(
-                                    //new LoggingHandler(LogLevel.TRACE),
-                                    //new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, Delimiters.lineDelimiter()),
                                     new StringEncoder(),
                                     new StringDecoder(),
                                     new EchoServerHandler());
@@ -57,44 +51,13 @@ public class WebSocketServer {
             // Wait until the server socket is closed.
             channelFuture.channel().closeFuture().sync();
 
-
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             // Shut down all event loops to terminate all threads.
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
-        
-        
-        
-        
-        
-        
-//        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-//        EventLoopGroup workerGroup = new NioEventLoopGroup();
-//        try {
-//            ServerBootstrap b = new ServerBootstrap();
-//            b.group(bossGroup, workerGroup)
-//                    .channel(NioServerSocketChannel.class)
-//                    .handler(new LoggingHandler(LogLevel.INFO))
-//                    .childHandler(
-//                                    new StringEncoder(),
-//                                    new StringDecoder(),
-//                                    new EchoServerHandler());
-//                            //new WebSocketServerChannelInitializer(this)
-//                    );
-//
-//            Channel ch = b.bind(port).sync().channel();
-//            ch.closeFuture().sync();
-//
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
-//        } finally {
-//            System.err.println("SHUTDOWN SERVER");
-//            bossGroup.shutdownGracefully();
-//            workerGroup.shutdownGracefully();
-//        }
     }
 
     public int getPort() {
@@ -104,7 +67,7 @@ public class WebSocketServer {
     public void setPort(int port) {
         this.port = port;
     }
-    
+
     public String getWebSocketPath() {
         return webSocketPath;
     }

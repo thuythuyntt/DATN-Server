@@ -6,7 +6,6 @@
 package model;
 
 import com.google.gson.Gson;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 /**
  *
@@ -45,17 +44,6 @@ public class SocketMessage {
         return "id: " + id + ", text: " + text;
     }
 
-    public TextWebSocketFrame toSocketFrame() {
-        Gson gson = new Gson();
-        String json = gson.toJson(this);
-        return new TextWebSocketFrame(json);
-    }
-
-    public static SocketMessage fromSocketFrame(TextWebSocketFrame frame) {
-        Gson gson = new Gson();
-        return gson.fromJson(frame.text(), SocketMessage.class);
-    }
-        
     public String toJsonString() {
         Gson gson = new Gson();
         return gson.toJson(this);
