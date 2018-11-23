@@ -63,6 +63,10 @@ public class SocketMessage {
 
     public static SocketMessage fromJsonString(String json) {
         Gson gson = new Gson();
-        return gson.fromJson(json, SocketMessage.class);
+        try {
+            return gson.fromJson(json, SocketMessage.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

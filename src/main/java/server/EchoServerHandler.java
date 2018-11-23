@@ -54,9 +54,11 @@ import model.SocketMessage;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String message) throws Exception {
-        //System.out.println("Received message: " + message);
+        System.out.println("channelRead0 message: " + message);
         //ctx.writeAndFlush(message + System.lineSeparator());
         SocketMessage sm = SocketMessage.fromJsonString(message);
-        System.out.println("channelRead0: " + sm.toString());
+        if (sm != null) {
+            System.out.println("channelRead0: " + sm.toString());
+        }
     }
 }
