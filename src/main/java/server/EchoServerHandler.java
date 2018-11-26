@@ -8,6 +8,7 @@ package server;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import model.SocketMessage;
@@ -29,7 +30,7 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         Channel ch = ctx.channel();
         System.err.println("[handlerAdded] remoteAddress " + ch.remoteAddress().toString());
-        System.err.println("[handlerAdded] localAddress " + ch.localAddress().toString());
+        System.err.println("[handlerAdded] localAddress: " + ch.localAddress().toString() + "Host name: " + InetAddress.getLocalHost().getHostName());
         channels.add(ch);
 
     }
