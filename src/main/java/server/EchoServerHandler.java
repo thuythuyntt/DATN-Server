@@ -21,10 +21,10 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
 
     private List<Channel> channels = new ArrayList<>();
 
-//    @Override
-//    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-//
-//    }
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("[channelActive]");
+    }
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
@@ -51,7 +51,6 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String message) throws Exception {
         System.out.println("[channelRead0] message: " + message);
-        //ctx.writeAndFlush(message + System.lineSeparator());
         SocketMessage sm = SocketMessage.fromJsonString(message);
         if (sm != null) {
             System.out.println("[channelRead0]: " + sm.toString());

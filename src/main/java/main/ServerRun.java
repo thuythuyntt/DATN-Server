@@ -5,7 +5,7 @@
  */
 package main;
 
-import server.WebSocketServer;
+import server.SocketServer;
 
 /**
  *
@@ -13,6 +13,6 @@ import server.WebSocketServer;
  */
 public class ServerRun {
     public static void main(String[] args) {
-        new WebSocketServer(8080).run();
+        new SocketServer(8080).run();
     }
 }

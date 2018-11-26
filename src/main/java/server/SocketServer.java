@@ -15,11 +15,11 @@ import io.netty.handler.logging.LoggingHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class WebSocketServer {
+public class SocketServer {
 
     private int port;
 
-    public WebSocketServer(int port) {
+    public SocketServer(int port) {
         this.setPort(port);
     }
 
@@ -52,7 +52,7 @@ public class WebSocketServer {
             channelFuture.channel().closeFuture().sync();
 
         } catch (Exception ex) {
-            Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SocketServer.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             // Shut down all event loops to terminate all threads.
             bossGroup.shutdownGracefully();
