@@ -10,7 +10,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import model.ClientInfo;
 import model.SocketMessage;
 
 /**
@@ -19,7 +21,8 @@ import model.SocketMessage;
  */
 public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
 
-    private List<Channel> channels = new ArrayList<>();
+    //private List<Channel> channels = new ArrayList<>();
+    private HashMap<String, ClientInfo> clients = new HashMap();
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -31,14 +34,15 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
         Channel ch = ctx.channel();
         System.err.println("[handlerAdded] remoteAddress " + ch.remoteAddress().toString());
         System.err.println("[handlerAdded] localAddress: " + ch.localAddress().toString() + " Host name: " + InetAddress.getLocalHost().getHostName());
-        channels.add(ch);
+        //channels.add(ch);
 
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         System.out.println("[handlerRemoved]");
-        channels.remove(ctx.channel());
+        String ip = ctx.channel().remoteAddress().toString();
+        clients.remove(ip);
     }
 
     @Override
@@ -54,8 +58,15 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
         SocketMessage sm = SocketMessage.fromJsonString(message);
         if (sm != null) {
             System.out.println("[channelRead0]: " + sm.toString());
+            if (SocketMessage.CONNECT.equals(sm.getId())) {
+                String ip = ctx.channel().remoteAddress().toString();
+                clients.put(ip, sm.getClient());
+            } else if (SocketMessage.GET_LIST_ONINE.equals(sm.getId())) {
+                //
+            } else if (sm.getId().startsWith("CTL_")) {
+                //
+            }
         }
-        ctx.writeAndFlush("[channelRead0] -> Server received");
     }
     
 }
