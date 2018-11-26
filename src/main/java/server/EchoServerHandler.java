@@ -30,7 +30,7 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         Channel ch = ctx.channel();
         System.err.println("[handlerAdded] remoteAddress " + ch.remoteAddress().toString());
-        System.err.println("[handlerAdded] localAddress: " + ch.localAddress().toString() + "Host name: " + InetAddress.getLocalHost().getHostName());
+        System.err.println("[handlerAdded] localAddress: " + ch.localAddress().toString() + " Host name: " + InetAddress.getLocalHost().getHostName());
         channels.add(ch);
 
     }
