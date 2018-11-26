@@ -56,7 +56,7 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
         if (sm != null) {
             System.out.println("[channelRead0]: " + sm.toString());
         }
-        ctx.write("[channelRead0] -> Server received");
+        ctx.writeAndFlush("[channelRead0] -> Server received");
     }
     
 }

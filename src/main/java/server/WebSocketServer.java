@@ -18,11 +18,9 @@ import java.util.logging.Logger;
 public class WebSocketServer {
 
     private int port;
-//    private String webSocketPath;
 
     public WebSocketServer(int port) {
         this.setPort(port);
-//        this.setWebSocketPath(webSocketPath);
     }
 
     public void run() {
@@ -62,19 +60,7 @@ public class WebSocketServer {
         }
     }
 
-//    public int getPort() {
-//        return port;
-//    }
-//
     public void setPort(int port) {
         this.port = port;
     }
-//
-//    public String getWebSocketPath() {
-//        return webSocketPath;
-//    }
-//
-//    public void setWebSocketPath(String webSocketPath) {
-//        this.webSocketPath = webSocketPath;
-//    }
 }
