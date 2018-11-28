@@ -43,11 +43,13 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
         String ip = ctx.channel().remoteAddress().toString();
         clients.remove(ip);
         
-        SocketMessage sm = new SocketMessage();
-        sm.setId(SocketMessage.SET_LIST_ONINE);
-        sm.setListOnline((List<ClientInfo>)clients.values());
+        broadcastListOnline();
         
-        ctx.writeAndFlush(sm.toJsonString());
+        //SocketMessage sm = new SocketMessage();
+        //sm.setId(SocketMessage.SET_LIST_ONINE);
+        //sm.setListOnline((List<ClientInfo>)clients.values());
+        
+       // ctx.writeAndFlush(sm.toJsonString());
     }
 
     @Override
@@ -81,7 +83,7 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
     private void sendListOnline(ChannelHandlerContext ctx) {
         SocketMessage m = new SocketMessage();
         m.setId(SocketMessage.SET_LIST_ONINE);
-        m.setListOnline((List<ClientInfo>)clients.values());
+        m.setListOnline(clients);
         ctx.writeAndFlush(m.toJsonString());
     }
     
