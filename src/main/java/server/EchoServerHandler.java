@@ -43,6 +43,12 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
         System.out.println("[handlerRemoved]");
         String ip = ctx.channel().remoteAddress().toString();
         clients.remove(ip);
+        
+        SocketMessage sm = new SocketMessage();
+        sm.setId(SocketMessage.SET_LIST_ONINE);
+        sm.setListOnline((List<ClientInfo>)clients.values());
+        
+        ctx.writeAndFlush(sm.toJsonString());
     }
 
     @Override
@@ -54,15 +60,16 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String message) throws Exception {
-        System.out.println("[channelRead0] message: " + message);
         SocketMessage sm = SocketMessage.fromJsonString(message);
         if (sm != null) {
             System.out.println("[channelRead0]: " + sm.toString());
             if (SocketMessage.CONNECT.equals(sm.getId())) {
                 String ip = ctx.channel().remoteAddress().toString();
                 clients.put(ip, sm.getClient());
+                
             } else if (SocketMessage.GET_LIST_ONINE.equals(sm.getId())) {
-                //
+                sm.setListOnline((List<ClientInfo>)clients.values());
+                ctx.writeAndFlush(sm.toJsonString());
             } else if (sm.getId().startsWith("CTL_")) {
                 //
             }
