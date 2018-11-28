@@ -63,16 +63,30 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
         if (sm != null) {
             System.out.println("[channelRead0]: " + sm.toString());
             if (SocketMessage.CONNECT.equals(sm.getId())) {
+                broadcastListOnline();
+                
                 String ip = ctx.channel().remoteAddress().toString();
                 clients.put(ip, sm.getClient());
+                sendListOnline(ctx);
+                
                 
             } else if (SocketMessage.GET_LIST_ONINE.equals(sm.getId())) {
-                sm.setListOnline((List<ClientInfo>)clients.values());
-                ctx.writeAndFlush(sm.toJsonString());
+                sendListOnline(ctx);
             } else if (sm.getId().startsWith("CTL_")) {
                 //
             }
         }
+    }
+    
+    private void sendListOnline(ChannelHandlerContext ctx) {
+        SocketMessage m = new SocketMessage();
+        m.setId(SocketMessage.SET_LIST_ONINE);
+        m.setListOnline((List<ClientInfo>)clients.values());
+        ctx.writeAndFlush(m.toJsonString());
+    }
+    
+    private void broadcastListOnline() {
+        //TODO
     }
     
 }
