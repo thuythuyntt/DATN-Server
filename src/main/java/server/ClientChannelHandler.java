@@ -5,14 +5,9 @@
  */
 package server;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import model.ClientInfo;
 import model.SocketMessage;
 

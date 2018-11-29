@@ -27,6 +27,7 @@ public class SocketServer {
         void onClientAdded(ClientChannelHandler handler);
         void onClientRemoved(ClientChannelHandler handler);
         List<ClientInfo> getListOnline();
+        ChannelHandlerContext getHandlerByIPAddress(String ip);
     }
 
     private int port;
@@ -63,6 +64,11 @@ public class SocketServer {
                                 @Override
                                 public List<ClientInfo> getListOnline() {
                                     return SocketServer.this.getListOnline();
+                                }
+
+                                @Override
+                                public ChannelHandlerContext getHandlerByIPAddress(String ip) {
+                                    return clients.get(ip).socketContext;
                                 }
                                 
                             }));
