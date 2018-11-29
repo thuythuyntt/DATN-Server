@@ -3,6 +3,7 @@ package server;
 import database.MyDatabase;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -13,12 +14,23 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import model.ClientInfo;
 
 public class SocketServer {
+    
+    public interface Listener {
+        void onClientAdded(ClientChannelHandler handler);
+        void onClientRemoved(ClientChannelHandler handler);
+        List<ClientInfo> getListOnline();
+    }
 
     private int port;
+    private HashMap<String, Client> clients = new HashMap<>();
 
     public SocketServer(int port) {
         this.setPort(port);
@@ -36,11 +48,32 @@ public class SocketServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(
-                                    new StringEncoder(),
-                                    new StringDecoder(),
-                                    new EchoServerHandler());
+                            ch.pipeline().addLast(new StringEncoder(), new StringDecoder(), new ClientChannelHandler(new Listener() {
+                                @Override
+                                public void onClientAdded(ClientChannelHandler handler) {
+                                    clients.put(handler.getClientIp(), handler.getClient());
+                                    System.out.println("onClientAdded " + handler.getClientIp());
+                                }
+                                
+                                @Override
+                                public void onClientRemoved(ClientChannelHandler handler) {
+                                    clients.remove(handler.getClientIp());
+                                }
+
+                                @Override
+                                public List<ClientInfo> getListOnline() {
+                                    return SocketServer.this.getListOnline();
+                                }
+                                
+                            }));
                         }
+
+                        @Override
+                        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                            super.exceptionCaught(ctx, cause);
+                            System.out.println("exceptionCaught " + cause.getMessage());
+                        }
+                        
                     });
 
             System.out.println("Server is listening on port " + port);
@@ -63,5 +96,13 @@ public class SocketServer {
 
     public void setPort(int port) {
         this.port = port;
+    }
+    
+    private List<ClientInfo> getListOnline() {
+        List<ClientInfo> list = new ArrayList<>();
+        for (Client c : clients.values()) {
+            list.add(c.clientInfo);
+        }
+        return list;
     }
 }
