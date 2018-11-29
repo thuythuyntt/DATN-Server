@@ -24,14 +24,6 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
 
     //private List<Channel> channels = new ArrayList<>();
     private HashMap<String, Client> clients = new HashMap();
-    
-    private List<ClientInfo> getListOnline() {
-        List<ClientInfo> list = new ArrayList<>();
-        for (Client c : clients.values()) {
-            list.add(c.clientInfo);
-        }
-        return list;
-    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -52,14 +44,12 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
         System.out.println("[handlerRemoved]");
         String ip = ctx.channel().remoteAddress().toString();
         clients.remove(ip);
-        
-        broadcastListOnline();
-        
+
+//        broadcastListOnline();
         //SocketMessage sm = new SocketMessage();
         //sm.setId(SocketMessage.SET_LIST_ONINE);
         //sm.setListOnline((List<ClientInfo>)clients.values());
-        
-       // ctx.writeAndFlush(sm.toJsonString());
+        // ctx.writeAndFlush(sm.toJsonString());
     }
 
     @Override
@@ -69,25 +59,32 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
         ctx.close();
     }
 
+    private ChannelHandlerContext teacherCtx;
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String message) throws Exception {
         SocketMessage sm = SocketMessage.fromJsonString(message);
         if (sm != null) {
             System.out.println("[channelRead0]: " + sm.getId());
             if (SocketMessage.CONNECT.equals(sm.getId())) {
-                String username = sm.getClient().getUsername();
-                List<Client> list = findClientByUserName(username);
-                for (Client c: list) {
-                    sendToClient( new SocketMessage(SocketMessage.FORCE_LOGOUT), c);
-                    clients.remove(getClientIp(c.socketContext));
-                }
+//                String username = sm.getClient().getUsername();
+//                List<Client> list = findClientByUserName(username);
+//                for (Client c: list) {
+//                    sendToClient( new SocketMessage(SocketMessage.FORCE_LOGOUT), c);
+//                    clients.remove(getClientIp(c.socketContext));
+//                }
                 Client client = new Client();
                 client.socketContext = ctx;
-                client.clientInfo = sm.getClient();
+                client.clientInfo = sm.getClientInfo();
                 clients.put(getClientIp(ctx), client);
-                broadcastListOnline();
+
+                if (teacherCtx != null) {
+                    sendListOnline(teacherCtx);
+                }
+//                broadcastListOnline();
             } else if (SocketMessage.GET_LIST_ONINE.equals(sm.getId())) {
-                sendListOnline(ctx);
+                teacherCtx = ctx;
+                sendListOnline(teacherCtx);
             } else if (sm.getId().startsWith("CTL_")) {
                 //
             }
@@ -95,39 +92,44 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
             System.out.println("[channelRead0] but SocketMessage null");
         }
     }
-    
-    private String getClientIp(ChannelHandlerContext ctx) {
-        return ctx.channel().remoteAddress().toString();
-    }
-    
-    private List<Client> findClientByUserName(String username) {
-        List<Client> list = new ArrayList<>();
+
+    private List<ClientInfo> getListOnline() {
+        List<ClientInfo> list = new ArrayList<>();
         for (Client c : clients.values()) {
-            if (c.clientInfo.getUsername().equals(username)) {
-                list.add(c);
-            }
+            list.add(c.clientInfo);
         }
         return list;
     }
-    
-    private void sendToClient(SocketMessage sm, Client client) {
-        client.socketContext.writeAndFlush(sm.toJsonString());
+
+    private String getClientIp(ChannelHandlerContext ctx) {
+        return ctx.channel().remoteAddress().toString();
     }
-    
+
+//    private List<Client> findClientByUserName(String username) {
+//        List<Client> list = new ArrayList<>();
+//        for (Client c : clients.values()) {
+//            if (c.clientInfo.getUsername().equals(username)) {
+//                list.add(c);
+//            }
+//        }
+//        return list;
+//    }
+//    private void sendToClient(SocketMessage sm, Client client) {
+//        client.socketContext.writeAndFlush(sm.toJsonString());
+//    }
     private void sendListOnline(ChannelHandlerContext ctx) {
         SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_ONINE);
         List<ClientInfo> list = getListOnline();
         m.setListOnline(list);
         ctx.writeAndFlush(m.toJsonString());
     }
-    
-    private void broadcastListOnline() {
-        List<ClientInfo> listOnline = getListOnline();
-        for (Client c : clients.values()) {
-            SocketMessage sm = new SocketMessage(SocketMessage.SET_LIST_ONINE);
-            sm.setListOnline(listOnline);
-            sendToClient(sm, c);
-        }
-    }
-    
+
+//    private void broadcastListOnline() {
+//        List<ClientInfo> listOnline = getListOnline();
+//        for (Client c : clients.values()) {
+//            SocketMessage sm = new SocketMessage(SocketMessage.SET_LIST_ONINE);
+//            sm.setListOnline(listOnline);
+//            sendToClient(sm, c);
+//        }
+//    }
 }
