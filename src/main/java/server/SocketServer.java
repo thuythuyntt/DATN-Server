@@ -15,7 +15,6 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.CharsetUtil;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,11 +31,9 @@ public class SocketServer {
 
         void onClientRemoved(ClientChannelHandler handler);
 
-//        List<ClientInfo> getListOnline();
         void sendListOnline(ChannelHandlerContext ctx);
 
         void controlPC(SocketMessage sm);
-//        ChannelHandlerContext getHandlerByIPAddress(String ip);
     }
 
     private int port;
@@ -70,14 +67,6 @@ public class SocketServer {
                                     clients.remove(handler.getClientIp());
                                 }
 
-//                                @Override
-//                                public List<ClientInfo> getListOnline() {
-//                                    return SocketServer.this.getListOnline();
-//                                }
-//                                @Override
-//                                public ChannelHandlerContext getHandlerByIPAddress(String ip) {
-//                                    return clients.get(ip).socketContext;
-//                                }
                                 @Override
                                 public void controlPC(SocketMessage sm) {
                                     System.out.println("controlPC " + sm.getClientInfo().getIpAddress());
