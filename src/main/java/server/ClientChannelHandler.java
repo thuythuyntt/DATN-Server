@@ -39,6 +39,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         System.out.println("handlerRemoved");
         listener.onClientRemoved(this);
+        listener.updateListOnline();
     }
 
     @Override
