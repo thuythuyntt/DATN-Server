@@ -44,7 +44,7 @@ public class SocketServer {
     private ChannelHandlerContext teacherCtx;
 
     public SocketServer(int port) {
-        this.setPort(port);
+        this.port = port;
     }
 
     public void run() {
@@ -72,6 +72,7 @@ public class SocketServer {
                                 @Override
                                 public void onClientRemoved(ClientChannelHandler handler) {
                                     clients.remove(handler.getClientIp());
+                                    updateListConnecting();
                                 }
 
                                 @Override
@@ -84,12 +85,8 @@ public class SocketServer {
 
                                 @Override
                                 public void updateListOnline() {
-                                    if (teacherCtx != null) {
-                                        SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_ONINE);
-                                        List<ClientInfo> list = SocketServer.this.getListOnline();
-                                        m.setListOnline(list);
-                                        teacherCtx.writeAndFlush(m.toJsonString());
-                                    }
+                                    updateListConnecting();
+
                                 }
 
                                 @Override
@@ -128,16 +125,21 @@ public class SocketServer {
         }
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
-
     private List<ClientInfo> getListOnline() {
         List<ClientInfo> list = new ArrayList<>();
         for (Client c : clients.values()) {
             list.add(c.clientInfo);
         }
         return list;
+    }
+
+    private void updateListConnecting() {
+        if (teacherCtx != null) {
+            SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_ONINE);
+            List<ClientInfo> list = SocketServer.this.getListOnline();
+            m.setListOnline(list);
+            teacherCtx.writeAndFlush(m.toJsonString());
+        }
     }
 
 }
