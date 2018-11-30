@@ -58,9 +58,8 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
                 client.socketContext = ctx;
                 client.clientInfo = sm.getClientInfo();
                 listener.onClientAdded(this);
-//                broadcastListOnline();
+                listener.updateListOnline();
             } else if (SocketMessage.GET_LIST_ONINE.equals(sm.getId())) {
-//                sendListOnline(ctx);
                 listener.sendListOnline(ctx);
             } else if (sm.getId().startsWith("CTL_")) {
                 sm.getClientInfo().getIpAddress();
@@ -75,10 +74,4 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
         return client.socketContext.channel().remoteAddress().toString();
     }
 
-//    private void sendListOnline(ChannelHandlerContext ctx) {
-//        SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_ONINE);
-//        List<ClientInfo> list = listener.getListOnline();
-//        m.setListOnline(list);
-//        ctx.writeAndFlush(m.toJsonString());
-//    }
 }

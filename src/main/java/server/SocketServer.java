@@ -1,6 +1,5 @@
 package server;
 
-import database.MyDatabase;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,6 +24,8 @@ import model.SocketMessage;
 
 public class SocketServer {
 
+    public static final String TEACHER_ROLE = "teacher";
+
     public interface Listener {
 
         void onClientAdded(ClientChannelHandler handler);
@@ -33,11 +34,14 @@ public class SocketServer {
 
         void sendListOnline(ChannelHandlerContext ctx);
 
+        void updateListOnline();
+
         void controlPC(SocketMessage sm);
     }
 
     private int port;
     private HashMap<String, Client> clients = new HashMap<>();
+    private ChannelHandlerContext teacherCtx;
 
     public SocketServer(int port) {
         this.setPort(port);
@@ -59,6 +63,9 @@ public class SocketServer {
                                 @Override
                                 public void onClientAdded(ClientChannelHandler handler) {
                                     clients.put(handler.getClientIp(), handler.getClient());
+                                    if (handler.getClient().clientInfo.getUserName().equals(TEACHER_ROLE)) {
+                                        teacherCtx = handler.getClient().socketContext;
+                                    }
                                     System.out.println("onClientAdded " + handler.getClientIp());
                                 }
 
@@ -68,18 +75,28 @@ public class SocketServer {
                                 }
 
                                 @Override
-                                public void controlPC(SocketMessage sm) {
-                                    System.out.println("controlPC " + sm.getClientInfo().getIpAddress());
-                                    ChannelHandlerContext ctx = clients.get(sm.getClientInfo().getIpAddress()).socketContext;
-                                    ctx.writeAndFlush(sm.toJsonString());
-                                }
-
-                                @Override
                                 public void sendListOnline(ChannelHandlerContext ctx) {
                                     SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_ONINE);
                                     List<ClientInfo> list = SocketServer.this.getListOnline();
                                     m.setListOnline(list);
                                     ctx.writeAndFlush(m.toJsonString());
+                                }
+
+                                @Override
+                                public void updateListOnline() {
+                                    if (teacherCtx != null) {
+                                        SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_ONINE);
+                                        List<ClientInfo> list = SocketServer.this.getListOnline();
+                                        m.setListOnline(list);
+                                        teacherCtx.writeAndFlush(m.toJsonString());
+                                    }
+                                }
+
+                                @Override
+                                public void controlPC(SocketMessage sm) {
+                                    System.out.println("controlPC " + sm.getClientInfo().getIpAddress());
+                                    ChannelHandlerContext ctx = clients.get(sm.getClientInfo().getIpAddress()).socketContext;
+                                    ctx.writeAndFlush(sm.toJsonString());
                                 }
 
                             }));
