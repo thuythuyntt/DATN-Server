@@ -63,6 +63,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
 //                sendListOnline(ctx);
                 listener.sendListOnline(ctx);
             } else if (sm.getId().startsWith("CTL_")) {
+                sm.getClientInfo().getIpAddress();
                 listener.controlPC(sm);
             }
         } else {

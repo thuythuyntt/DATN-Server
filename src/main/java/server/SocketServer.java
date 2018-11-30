@@ -78,6 +78,7 @@ public class SocketServer {
 //                                }
                                 @Override
                                 public void controlPC(SocketMessage sm) {
+                                    System.out.println("controlPC " + sm.getClientInfo().getIpAddress());
                                     ChannelHandlerContext ctx = clients.get(sm.getClientInfo().getIpAddress()).socketContext;
                                     ctx.writeAndFlush(sm.toJsonString());
                                 }
