@@ -20,14 +20,21 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.ClientInfo;
+import model.SocketMessage;
 
 public class SocketServer {
-    
+
     public interface Listener {
+
         void onClientAdded(ClientChannelHandler handler);
+
         void onClientRemoved(ClientChannelHandler handler);
-        List<ClientInfo> getListOnline();
-        ChannelHandlerContext getHandlerByIPAddress(String ip);
+
+//        List<ClientInfo> getListOnline();
+        void sendListOnline(ChannelHandlerContext ctx);
+
+        void controlPC(SocketMessage sm);
+//        ChannelHandlerContext getHandlerByIPAddress(String ip);
     }
 
     private int port;
@@ -55,22 +62,34 @@ public class SocketServer {
                                     clients.put(handler.getClientIp(), handler.getClient());
                                     System.out.println("onClientAdded " + handler.getClientIp());
                                 }
-                                
+
                                 @Override
                                 public void onClientRemoved(ClientChannelHandler handler) {
                                     clients.remove(handler.getClientIp());
                                 }
 
+//                                @Override
+//                                public List<ClientInfo> getListOnline() {
+//                                    return SocketServer.this.getListOnline();
+//                                }
+//                                @Override
+//                                public ChannelHandlerContext getHandlerByIPAddress(String ip) {
+//                                    return clients.get(ip).socketContext;
+//                                }
                                 @Override
-                                public List<ClientInfo> getListOnline() {
-                                    return SocketServer.this.getListOnline();
+                                public void controlPC(SocketMessage sm) {
+                                    ChannelHandlerContext ctx = clients.get(sm.getTargetUserName()).socketContext;
+                                    ctx.writeAndFlush(sm.toJsonString());
                                 }
 
                                 @Override
-                                public ChannelHandlerContext getHandlerByIPAddress(String ip) {
-                                    return clients.get(ip).socketContext;
+                                public void sendListOnline(ChannelHandlerContext ctx) {
+                                    SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_ONINE);
+                                    List<ClientInfo> list = SocketServer.this.getListOnline();
+                                    m.setListOnline(list);
+                                    ctx.writeAndFlush(m.toJsonString());
                                 }
-                                
+
                             }));
                         }
 
@@ -79,7 +98,7 @@ public class SocketServer {
                             super.exceptionCaught(ctx, cause);
                             System.out.println("exceptionCaught " + cause.getMessage());
                         }
-                        
+
                     });
 
             System.out.println("Server is listening on port " + port);
@@ -103,7 +122,7 @@ public class SocketServer {
     public void setPort(int port) {
         this.port = port;
     }
-    
+
     private List<ClientInfo> getListOnline() {
         List<ClientInfo> list = new ArrayList<>();
         for (Client c : clients.values()) {
@@ -111,4 +130,5 @@ public class SocketServer {
         }
         return list;
     }
+
 }

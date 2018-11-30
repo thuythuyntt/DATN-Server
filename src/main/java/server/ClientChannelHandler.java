@@ -17,13 +17,16 @@ import model.SocketMessage;
  */
 public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
 
-    //private List<Channel> channels = new ArrayList<>();
     private Client client;
     private final SocketServer.Listener listener;
-    
+
     public ClientChannelHandler(SocketServer.Listener serveListener) {
         super();
         this.listener = serveListener;
+    }
+
+    public Client getClient() {
+        return client;
     }
 
     @Override
@@ -46,7 +49,6 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
         ctx.close();
     }
 
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String message) throws Exception {
         SocketMessage sm = SocketMessage.fromJsonString(message);
@@ -59,30 +61,24 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
                 listener.onClientAdded(this);
 //                broadcastListOnline();
             } else if (SocketMessage.GET_LIST_ONINE.equals(sm.getId())) {
-                sendListOnline(ctx);
+//                sendListOnline(ctx);
+                listener.sendListOnline(ctx);
             } else if (sm.getId().startsWith("CTL_")) {
-                //
+                listener.controlPC(sm);
             }
         } else {
             System.out.println("[channelRead0] but SocketMessage null");
         }
     }
 
-
-    
-    public Client getClient() {
-        return client;
-    }
-
     public String getClientIp() {
         return client.socketContext.channel().remoteAddress().toString();
     }
 
-    private void sendListOnline(ChannelHandlerContext ctx) {
-        SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_ONINE);
-        List<ClientInfo> list = listener.getListOnline();
-        m.setListOnline(list);
-        ctx.writeAndFlush(m.toJsonString());
-    }
-
+//    private void sendListOnline(ChannelHandlerContext ctx) {
+//        SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_ONINE);
+//        List<ClientInfo> list = listener.getListOnline();
+//        m.setListOnline(list);
+//        ctx.writeAndFlush(m.toJsonString());
+//    }
 }
