@@ -7,8 +7,6 @@ package server;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import java.util.List;
-import model.ClientInfo;
 import model.SocketMessage;
 
 /**
@@ -39,6 +37,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("handlerRemoved");
         listener.onClientRemoved(this);
     }
 
