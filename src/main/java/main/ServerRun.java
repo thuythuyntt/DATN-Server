@@ -5,6 +5,7 @@
  */
 package main;
 
+import database.MyDatabase;
 import server.SocketServer;
 
 /**
@@ -13,6 +14,7 @@ import server.SocketServer;
  */
 public class ServerRun {
     public static void main(String[] args) {
-        new SocketServer(8080).run();
+        MyDatabase.connectMySQL();
+        new SocketServer(8081).run();
     }
 }
