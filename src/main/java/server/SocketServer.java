@@ -37,6 +37,10 @@ public class SocketServer {
         void updateListOnline();
 
         void controlPC(SocketMessage sm);
+
+        void shareScreen(SocketMessage sm);
+
+        void updateSharingScreen(SocketMessage sm);
     }
 
     private int port;
@@ -94,6 +98,19 @@ public class SocketServer {
                                     System.out.println("controlPC " + sm.getClientInfo().getIpAddress());
                                     ChannelHandlerContext ctx = clients.get(sm.getClientInfo().getIpAddress()).socketContext;
                                     ctx.writeAndFlush(sm.toJsonString());
+                                }
+
+                                @Override
+                                public void shareScreen(SocketMessage sm) {
+                                    ChannelHandlerContext ctx = clients.get(sm.getClientInfo().getIpAddress()).socketContext;
+                                    ctx.writeAndFlush(sm.toJsonString());
+                                }
+
+                                @Override
+                                public void updateSharingScreen(SocketMessage sm) {
+                                    if (teacherCtx != null) {
+                                        teacherCtx.writeAndFlush(sm);
+                                    }
                                 }
 
                             }));
