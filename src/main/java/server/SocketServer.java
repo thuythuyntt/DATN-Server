@@ -102,12 +102,14 @@ public class SocketServer {
 
                                 @Override
                                 public void shareScreen(SocketMessage sm) {
+                                    System.out.println("SocketServer shareScreen");
                                     ChannelHandlerContext ctx = clients.get(sm.getClientInfo().getIpAddress()).socketContext;
                                     ctx.writeAndFlush(sm.toJsonString());
                                 }
 
                                 @Override
                                 public void updateSharingScreen(SocketMessage sm) {
+                                    System.out.println("SocketServer updateSharingScreen");
                                     if (teacherCtx != null) {
                                         teacherCtx.writeAndFlush(sm);
                                     }
