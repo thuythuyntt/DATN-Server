@@ -19,18 +19,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import model.ClientInfo;
+import model.SessionInfo;
 import model.SocketMessage;
 
 public class SocketServer {
-
-    public static final String TEACHER_ROLE = "teacher";
+    
+    public static final String ROLE_TEACHER = "gv";
 
     public interface Listener {
 
         void onClientAdded(ClientChannelHandler handler);
 
         void onClientRemoved(ClientChannelHandler handler);
+        
+        void sendNotification(SocketMessage sm);
 
         void sendListOnline(ChannelHandlerContext ctx);
 
@@ -67,7 +69,7 @@ public class SocketServer {
                                 @Override
                                 public void onClientAdded(ClientChannelHandler handler) {
                                     clients.put(handler.getClientIp(), handler.getClient());
-                                    if (handler.getClient().clientInfo.getUserName().equals(TEACHER_ROLE)) {
+                                    if (handler.getClient().clientInfo.getRole().equals(ROLE_TEACHER)) {
                                         teacherCtx = handler.getClient().socketContext;
                                     }
                                     System.out.println("onClientAdded " + handler.getClientIp());
@@ -82,7 +84,7 @@ public class SocketServer {
                                 @Override
                                 public void sendListOnline(ChannelHandlerContext ctx) {
                                     SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_ONINE);
-                                    List<ClientInfo> list = SocketServer.this.getListOnline();
+                                    List<SessionInfo> list = SocketServer.this.getListOnline();
                                     m.setListOnline(list);
                                     ctx.writeAndFlush(m.toJsonString());
                                 }
@@ -95,15 +97,15 @@ public class SocketServer {
 
                                 @Override
                                 public void controlPC(SocketMessage sm) {
-                                    System.out.println("controlPC " + sm.getClientInfo().getIpAddress());
-                                    ChannelHandlerContext ctx = clients.get(sm.getClientInfo().getIpAddress()).socketContext;
+                                    System.out.println("controlPC " + sm.getSessionInfo().getIpAddress());
+                                    ChannelHandlerContext ctx = clients.get(sm.getSessionInfo().getIpAddress()).socketContext;
                                     ctx.writeAndFlush(sm.toJsonString());
                                 }
 
                                 @Override
                                 public void shareScreen(SocketMessage sm) {
                                     System.out.println("SocketServer shareScreen");
-                                    ChannelHandlerContext ctx = clients.get(sm.getClientInfo().getIpAddress()).socketContext;
+                                    ChannelHandlerContext ctx = clients.get(sm.getSessionInfo().getIpAddress()).socketContext;
                                     ctx.writeAndFlush(sm.toJsonString());
                                 }
 
@@ -115,6 +117,14 @@ public class SocketServer {
                                     }
                                 }
 
+                                @Override
+                                public void sendNotification(SocketMessage sm) {
+                                    for (Client c: clients.values()){
+                                        if (!(c.clientInfo.getRole().equals(ROLE_TEACHER))) {
+                                            c.socketContext.writeAndFlush(sm);
+                                        }
+                                    }
+                                }
                             }));
                         }
 
@@ -144,8 +154,8 @@ public class SocketServer {
         }
     }
 
-    private List<ClientInfo> getListOnline() {
-        List<ClientInfo> list = new ArrayList<>();
+    private List<SessionInfo> getListOnline() {
+        List<SessionInfo> list = new ArrayList<>();
         for (Client c : clients.values()) {
             list.add(c.clientInfo);
         }
@@ -155,7 +165,7 @@ public class SocketServer {
     private void updateListConnecting() {
         if (teacherCtx != null) {
             SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_ONINE);
-            List<ClientInfo> list = SocketServer.this.getListOnline();
+            List<SessionInfo> list = SocketServer.this.getListOnline();
             m.setListOnline(list);
             teacherCtx.writeAndFlush(m.toJsonString());
         }

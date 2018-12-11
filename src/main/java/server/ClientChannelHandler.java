@@ -56,18 +56,20 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
             if (SocketMessage.CONNECT.equals(sm.getId())) {
                 client = new Client();
                 client.socketContext = ctx;
-                client.clientInfo = sm.getClientInfo();
+                client.clientInfo = sm.getSessionInfo();
                 listener.onClientAdded(this);
                 listener.updateListOnline();
             } else if (SocketMessage.GET_LIST_ONINE.equals(sm.getId())) {
                 listener.sendListOnline(ctx);
             } else if (sm.getId().startsWith("CTL_")) {
-                sm.getClientInfo().getIpAddress();
+                sm.getSessionInfo().getIpAddress();
                 listener.controlPC(sm);
             } else if (SocketMessage.GET_VIEWER.equals(sm.getId())){
                 listener.shareScreen(sm);
             } else if (SocketMessage.SET_VIEWER.equals(sm.getId())){
                 listener.updateSharingScreen(sm);
+            } else if (SocketMessage.SEND_NOTIFICATION.equals(sm.getId())){
+                listener.sendNotification(sm);
             }
         } else {
             System.out.println("[channelRead0] but SocketMessage null");

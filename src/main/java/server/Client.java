@@ -6,13 +6,13 @@
 package server;
 
 import io.netty.channel.ChannelHandlerContext;
-import model.ClientInfo;
+import model.SessionInfo;
 
 /**
  *
  * @author thuy
  */
 public class Client {
-    public ClientInfo clientInfo;
+    public SessionInfo clientInfo;
     public ChannelHandlerContext socketContext;
 }
