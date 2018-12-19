@@ -37,7 +37,7 @@ public class MyDatabase {
 
     public void connectMySQL() {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             mConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/datn", "datn", "123456");
         } catch (Exception e) {
             e.printStackTrace();
