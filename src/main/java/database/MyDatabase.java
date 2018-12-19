@@ -5,34 +5,26 @@
  */
 package database;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
+import model.SessionInfo;
+import model.Student;
 
 /**
  *
  * @author thuy
  */
 public class MyDatabase {
-    private int serverPort = 8888;
-    
-    private static String hostName = "localhost";
-    private static String sqlInstanceName = "SQLEXPRESS";
-    private static String database = "datn";
-    private static String userName = "sa";
-    private static String password = "123456";
-    private static String driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-    
+ 
     private Connection mConnection;
-    private ServerSocket mServerSocket;
-    
+    private ResultSet rs;
+
     private static MyDatabase instance = null;
-    
-    public static MyDatabase getInstance(){
+
+    public static MyDatabase getInstance() {
         if (instance == null) {
             instance = new MyDatabase();
         }
@@ -40,49 +32,62 @@ public class MyDatabase {
     }
 
     public MyDatabase() {
-        mConnection = getDBConnection();
-        mServerSocket = openServer(serverPort);
-    }
-    
-    public static void connectMySQL() {
-        try{
-            Class.forName("com.mysql.jdbc.Driver");  
-            Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/datn", "datn", "123456");  
-            Statement stmt=con.createStatement();  
-            ResultSet rs=stmt.executeQuery("select * from users");  
-            while(rs.next()) {
-                System.out.println(rs.getInt(1)+"  "+rs.getString(2)+"  "+rs.getString(3));
-            }  
-            con.close();
-        } catch(Exception e) { 
-            System.out.println(e);
-        }  
-    } 
-    
-
-    public static Connection getDBConnection() {
-        try {
-            Class.forName(driver);
-            
-            String connectionUrl = "jdbc:sqlserver://" + hostName + ":1433;"
-                    + "databaseName=" + database + ";user=" + userName + ";password=" + password + ";";
-            try {
-                return DriverManager.getConnection(connectionUrl);
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
-        }
-        return null;
+        connectMySQL();
     }
 
-    private static ServerSocket openServer(int portNumber) {
+    public void connectMySQL() {
         try {
-            return new ServerSocket(portNumber);
-        } catch (IOException e) {
+            Class.forName("com.mysql.jdbc.Driver");
+            mConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/datn", "datn", "123456");
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+    }
+    
+    public ArrayList<SessionInfo> getListSessionByStudentId(String id) throws Exception {
+        ArrayList<SessionInfo> lst = new ArrayList<>();
+        String strSQL = "select * from user_sessions where userId = '" + id +"'";
+        try {
+            rs = mConnection.createStatement().executeQuery(strSQL);
+            while (rs.next()) {
+                String pcName = rs.getString("pcName");
+                String login = rs.getString("dtLogin");
+                String logout = rs.getString("dtLogout");
+                String reason = rs.getString("reasonLogout");
+                SessionInfo s = new SessionInfo(pcName, login, logout, reason);
+                lst.add(s);
+            }
+        } catch (Exception e) {
+            throw new Exception(e.getMessage() + " Error at : " + strSQL);
+        }
+        return lst;
+    }
+    
+    public ArrayList<Student> getListStudent() throws Exception {
+        ArrayList<Student> lst = new ArrayList<>();
+        String strSQL = "select * from users";
+        try {
+            rs = mConnection.createStatement().executeQuery(strSQL);
+            while (rs.next()) {
+                String id = rs.getString("firebaseId");
+                String userName = rs.getString("userName");
+                String fullName = rs.getString("fullName");
+                String group = rs.getString("class");
+                String code = rs.getString("code");
+                Student u = new Student(id, userName, group, code, fullName);
+                lst.add(u);
+            }
+        } catch (Exception e) {
+            throw new Exception(e.getMessage() + " Error at : " + strSQL);
+        }
+        return lst;
+    }
+    
+    public void disconnectMySQL(){
+        try {
+            mConnection.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 }

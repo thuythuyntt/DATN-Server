@@ -1,5 +1,6 @@
 package server;
 
+import database.MyDatabase;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -21,6 +22,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.SessionInfo;
 import model.SocketMessage;
+import model.Student;
 
 public class SocketServer {
     
@@ -43,6 +45,10 @@ public class SocketServer {
         void shareScreen(SocketMessage sm);
 
         void updateSharingScreen(SocketMessage sm);
+        
+        void sendListSession(ChannelHandlerContext ctx, String studentId);
+        
+        void sendListStudent(ChannelHandlerContext ctx);
     }
 
     private int port;
@@ -123,6 +129,30 @@ public class SocketServer {
                                         if (!(c.clientInfo.getRole().equals(ROLE_TEACHER))) {
                                             c.socketContext.writeAndFlush(sm);
                                         }
+                                    }
+                                }
+
+                                @Override
+                                public void sendListSession(ChannelHandlerContext ctx, String studentId) {
+                                    try {
+                                        SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_SESSION);
+                                        List<SessionInfo> list = MyDatabase.getInstance().getListSessionByStudentId(studentId);
+                                        m.setListOnline(list);
+                                        ctx.writeAndFlush(m.toJsonString());
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                }
+
+                                @Override
+                                public void sendListStudent(ChannelHandlerContext ctx) {
+                                    try {
+                                        SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_STUDENT);
+                                        List<Student> list = MyDatabase.getInstance().getListStudent();
+                                        m.setListStudent(list);
+                                        ctx.writeAndFlush(m.toJsonString());
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
                                     }
                                 }
                             }));

@@ -14,7 +14,7 @@ import server.SocketServer;
  */
 public class ServerRun {
     public static void main(String[] args) {
-        MyDatabase.connectMySQL();
+        MyDatabase.getInstance().connectMySQL();
         new SocketServer(8081).run();
     }
 }
