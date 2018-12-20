@@ -131,6 +131,7 @@ public class SocketServer {
                                 public void sendNotification(SocketMessage sm) {
                                     for (Client c: clients.values()){
                                         if (!(c.clientInfo.getRole().equals(ROLE_TEACHER))) {
+                                            System.out.println(c.clientInfo.getFullName());
                                             c.socketContext.writeAndFlush(sm);
                                         }
                                     }
@@ -167,7 +168,7 @@ public class SocketServer {
 
                                 @Override
                                 public void disconnect(SessionInfo s) {
-                                    MyDatabase.getInstance().addUserSession(s);
+                                    MyDatabase.getInstance().updateUserSession(s);
                                 }
                             }));
                         }
