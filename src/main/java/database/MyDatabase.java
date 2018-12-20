@@ -7,8 +7,10 @@ package database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import model.SessionInfo;
 import model.Student;
@@ -21,6 +23,7 @@ public class MyDatabase {
  
     private Connection mConnection;
     private ResultSet rs;
+    private PreparedStatement ps;
 
     private static MyDatabase instance = null;
 
@@ -44,7 +47,7 @@ public class MyDatabase {
         }
     }
     
-    public ArrayList<SessionInfo> getListSessionByStudentId(String id) throws Exception {
+    public ArrayList<SessionInfo> getListSessionByStudentId(String id) {
         ArrayList<SessionInfo> lst = new ArrayList<>();
         String strSQL = "select * from user_sessions where userId = '" + id +"'";
         try {
@@ -58,12 +61,39 @@ public class MyDatabase {
                 lst.add(s);
             }
         } catch (Exception e) {
-            throw new Exception(e.getMessage() + " Error at : " + strSQL);
+            e.printStackTrace();
         }
         return lst;
     }
     
-    public ArrayList<Student> getListStudent() throws Exception {
+    public void addUserSession(SessionInfo s) {
+        String query = "insert into user_sessions (userId , pcName, pcId, dtLogin) VALUES (?,?,?,?)";
+        try {
+            ps = mConnection.prepareStatement(query);
+            ps.setString(1, s.getUserId());
+            ps.setString(2, s.getPcName());
+            ps.setString(3, s.getIpAddress());
+            ps.setString(4, s.getDtLogin());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public void updateUserSession(SessionInfo s){
+        String query = "update user_sessions set dtLogout = ?, reasonLogout = ? where userId = ?";
+        try {
+            ps = mConnection.prepareStatement(query);
+            ps.setString(1, s.getDtLogout());
+            ps.setString(2, s.getReasonLogout());
+            ps.setString(3, s.getUserId());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public ArrayList<Student> getListStudent(){
         ArrayList<Student> lst = new ArrayList<>();
         String strSQL = "select * from users";
         try {
@@ -78,7 +108,7 @@ public class MyDatabase {
                 lst.add(u);
             }
         } catch (Exception e) {
-            throw new Exception(e.getMessage() + " Error at : " + strSQL);
+            e.printStackTrace();
         }
         return lst;
     }

@@ -59,6 +59,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
                 client.clientInfo = sm.getSessionInfo();
                 listener.onClientAdded(this);
                 listener.updateListOnline();
+                listener.addUserSessionToDB(sm.getSessionInfo());
             } else if (SocketMessage.GET_LIST_ONINE.equals(sm.getId())) {
                 listener.sendListOnline(ctx);
             } else if (sm.getId().startsWith("CTL_")) {
@@ -74,6 +75,8 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
                 listener.sendListSession(ctx, sm.getCapture());
             } else if (SocketMessage.GET_LIST_STUDENT.equals(sm.getId())) {
                 listener.sendListStudent(ctx);
+            } else if (SocketMessage.DISCONNECT.equals(sm.getId())) {
+                listener.disconnect(sm.getSessionInfo());
             } else {
                 System.out.println("[channelRead0] but SocketMessage null");
             }

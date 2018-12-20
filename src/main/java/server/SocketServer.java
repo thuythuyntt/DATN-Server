@@ -49,6 +49,10 @@ public class SocketServer {
         void sendListSession(ChannelHandlerContext ctx, String studentId);
         
         void sendListStudent(ChannelHandlerContext ctx);
+        
+        void addUserSessionToDB(SessionInfo s);
+        
+        void disconnect(SessionInfo s);
     }
 
     private int port;
@@ -154,6 +158,16 @@ public class SocketServer {
                                     } catch (Exception ex) {
                                         ex.printStackTrace();
                                     }
+                                }
+
+                                @Override
+                                public void addUserSessionToDB(SessionInfo s) {
+                                    MyDatabase.getInstance().addUserSession(s);
+                                }
+
+                                @Override
+                                public void disconnect(SessionInfo s) {
+                                    MyDatabase.getInstance().addUserSession(s);
                                 }
                             }));
                         }
