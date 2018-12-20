@@ -78,7 +78,6 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
             } else if (SocketMessage.GET_LIST_STUDENT.equals(sm.getId())) {
                 listener.sendListStudent(ctx);
             } else if (SocketMessage.DISCONNECT.equals(sm.getId())) {
-                System.out.println("DISCONNECT: " + message);
                 listener.disconnect(sm.getSessionInfo());
             } else {
                 System.out.println("[channelRead0] but SocketMessage null");

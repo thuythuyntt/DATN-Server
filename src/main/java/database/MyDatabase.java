@@ -10,7 +10,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import model.SessionInfo;
 import model.Student;
@@ -82,7 +81,6 @@ public class MyDatabase {
     
     public void updateUserSession(SessionInfo s){
         String query = "update user_sessions set dtLogout = ?, reasonLogout = ? where userId = ?";
-        System.out.println(s.getReasonLogout());
         try {
             ps = mConnection.prepareStatement(query);
             ps.setString(1, s.getDtLogout());

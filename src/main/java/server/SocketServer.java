@@ -131,7 +131,6 @@ public class SocketServer {
                                 public void sendNotification(SocketMessage sm) {
                                     for (Client c: clients.values()){
                                         if (!(c.clientInfo.getRole().equals(ROLE_TEACHER))) {
-                                            System.out.println(c.clientInfo.getFullName());
                                             c.socketContext.writeAndFlush(sm);
                                         }
                                     }
