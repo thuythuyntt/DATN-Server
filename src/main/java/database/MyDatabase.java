@@ -67,7 +67,7 @@ public class MyDatabase {
     }
     
     public void addUserSession(SessionInfo s) {
-        String query = "insert into user_sessions (userId , pcName, pcId, dtLogin) VALUES (?,?,?,?)";
+        String query = "insert into user_sessions (userId , pcName, pcIp, dtLogin) VALUES (?,?,?,?)";
         try {
             ps = mConnection.prepareStatement(query);
             ps.setString(1, s.getUserId());
@@ -82,6 +82,7 @@ public class MyDatabase {
     
     public void updateUserSession(SessionInfo s){
         String query = "update user_sessions set dtLogout = ?, reasonLogout = ? where userId = ?";
+        System.out.println(s.getReasonLogout());
         try {
             ps = mConnection.prepareStatement(query);
             ps.setString(1, s.getDtLogout());

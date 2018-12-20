@@ -50,6 +50,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String message) throws Exception {
+        System.out.println("message len: " + message.length() + " --> " + message);
         SocketMessage sm = SocketMessage.fromJsonString(message);
         if (sm != null) {
             System.out.println("[channelRead0]: " + sm.getId());
@@ -59,7 +60,9 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
                 client.clientInfo = sm.getSessionInfo();
                 listener.onClientAdded(this);
                 listener.updateListOnline();
-                listener.addUserSessionToDB(sm.getSessionInfo());
+                if (sm.getSessionInfo().getRole().equals("sv")) {
+                    listener.addUserSessionToDB(sm.getSessionInfo());
+                }
             } else if (SocketMessage.GET_LIST_ONINE.equals(sm.getId())) {
                 listener.sendListOnline(ctx);
             } else if (sm.getId().startsWith("CTL_")) {
@@ -76,6 +79,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
             } else if (SocketMessage.GET_LIST_STUDENT.equals(sm.getId())) {
                 listener.sendListStudent(ctx);
             } else if (SocketMessage.DISCONNECT.equals(sm.getId())) {
+                System.out.println("DISCONNECT: " + message);
                 listener.disconnect(sm.getSessionInfo());
             } else {
                 System.out.println("[channelRead0] but SocketMessage null");
