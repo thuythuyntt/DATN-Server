@@ -60,7 +60,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<String> {
                 listener.onClientAdded(this);
                 listener.updateListOnline();
                 if (sm.getSessionInfo().getRole().equals("sv")) {
-                    listener.addUserSessionToDB(sm.getSessionInfo());
+                    listener.addUserSessionToDB(ctx, sm.getSessionInfo());
                 }
             } else if (SocketMessage.GET_LIST_ONINE.equals(sm.getId())) {
                 listener.sendListOnline(ctx);

@@ -10,6 +10,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import model.SessionInfo;
 import model.Student;
@@ -19,7 +20,7 @@ import model.Student;
  * @author thuy
  */
 public class MyDatabase {
- 
+
     private Connection mConnection;
     private ResultSet rs;
     private PreparedStatement ps;
@@ -45,10 +46,10 @@ public class MyDatabase {
             e.printStackTrace();
         }
     }
-    
+
     public ArrayList<SessionInfo> getListSessionByStudentId(String id) {
         ArrayList<SessionInfo> lst = new ArrayList<>();
-        String strSQL = "select * from user_sessions where userId = '" + id +"'";
+        String strSQL = "select * from user_sessions where userId = '" + id + "'";
         try {
             rs = mConnection.createStatement().executeQuery(strSQL);
             while (rs.next()) {
@@ -64,35 +65,50 @@ public class MyDatabase {
         }
         return lst;
     }
-    
-    public void addUserSession(SessionInfo s) {
+
+    public String addUserSession(SessionInfo s) {
         String query = "insert into user_sessions (userId , pcName, pcIp, dtLogin) VALUES (?,?,?,?)";
         try {
-            ps = mConnection.prepareStatement(query);
+            ps = mConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, s.getUserId());
             ps.setString(2, s.getPcName());
             ps.setString(3, s.getIpAddress());
             ps.setString(4, s.getDtLogin());
-            ps.executeUpdate();
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                System.out.println("Creating user failed, no rows affected.");
+                return "";
+            }
+
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    System.out.println("Creating user successfully, ID: " + generatedKeys.getInt(1));
+                    return String.valueOf(generatedKeys.getInt(1));
+                } else {
+                    System.out.println("Creating user failed, no ID obtained.");
+                    return "";
+                }
+            }
         } catch (SQLException ex) {
             ex.printStackTrace();
+            return "";
         }
     }
-    
-    public void updateUserSession(SessionInfo s){
-        String query = "update user_sessions set dtLogout = ?, reasonLogout = ? where userId = ?";
+
+    public void updateUserSession(SessionInfo s) {
+        String query = "update user_sessions set dtLogout = ?, reasonLogout = ? where id = ?";
         try {
             ps = mConnection.prepareStatement(query);
             ps.setString(1, s.getDtLogout());
             ps.setString(2, s.getReasonLogout());
-            ps.setString(3, s.getUserId());
+            ps.setString(3, s.getId());
             ps.executeUpdate();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
-    
-    public ArrayList<Student> getListStudent(){
+
+    public ArrayList<Student> getListStudent() {
         ArrayList<Student> lst = new ArrayList<>();
         String strSQL = "select * from users where role = 'sv'";
         try {
@@ -112,8 +128,8 @@ public class MyDatabase {
         }
         return lst;
     }
-    
-    public void disconnectMySQL(){
+
+    public void disconnectMySQL() {
         try {
             mConnection.close();
         } catch (SQLException ex) {

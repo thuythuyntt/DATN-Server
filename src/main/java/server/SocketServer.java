@@ -52,7 +52,7 @@ public class SocketServer {
         
         void sendListStudent(ChannelHandlerContext ctx);
         
-        void addUserSessionToDB(SessionInfo s);
+        void addUserSessionToDB(ChannelHandlerContext ctx, SessionInfo s);
         
         void disconnect(SessionInfo s);
     }
@@ -164,8 +164,10 @@ public class SocketServer {
                                 }
 
                                 @Override
-                                public void addUserSessionToDB(SessionInfo s) {
-                                    MyDatabase.getInstance().addUserSession(s);
+                                public void addUserSessionToDB(ChannelHandlerContext ctx, SessionInfo s) {
+                                    String id = MyDatabase.getInstance().addUserSession(s);
+                                    SocketMessage sm = new SocketMessage(SocketMessage.CONNECT, id);
+                                    ctx.writeAndFlush(sm.toJsonString());
                                 }
 
                                 @Override
