@@ -8,8 +8,10 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.oio.OioServerSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
@@ -65,12 +67,12 @@ public class SocketServer {
 
     public void run() {
 
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup = new OioEventLoopGroup();
+        EventLoopGroup workerGroup = new OioEventLoopGroup();
         try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             serverBootstrap.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
+                    .channel(OioServerSocketChannel.class)
                     .handler(new LoggingHandler(LogLevel.TRACE))
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
@@ -142,6 +144,7 @@ public class SocketServer {
                                         SocketMessage m = new SocketMessage(SocketMessage.SET_LIST_SESSION);
                                         List<SessionInfo> list = MyDatabase.getInstance().getListSessionByStudentId(studentId);
                                         m.setListOnline(list);
+                                        System.out.println("sendListSession: " + m.toJsonString() + " LENGTH: " + m.toJsonString().length());
                                         ctx.writeAndFlush(m.toJsonString());
                                     } catch (Exception ex) {
                                         ex.printStackTrace();
