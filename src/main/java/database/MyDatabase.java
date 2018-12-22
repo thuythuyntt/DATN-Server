@@ -94,7 +94,7 @@ public class MyDatabase {
     
     public ArrayList<Student> getListStudent(){
         ArrayList<Student> lst = new ArrayList<>();
-        String strSQL = "select * from users where role = sv";
+        String strSQL = "select * from users where role = 'sv'";
         try {
             rs = mConnection.createStatement().executeQuery(strSQL);
             while (rs.next()) {
@@ -103,7 +103,8 @@ public class MyDatabase {
                 String fullName = rs.getString("fullName");
                 String group = rs.getString("class");
                 String code = rs.getString("code");
-                Student u = new Student(id, userName, group, code, fullName);
+                String role = rs.getString("role");
+                Student u = new Student(id, userName, group, code, fullName, role);
                 lst.add(u);
             }
         } catch (Exception e) {
