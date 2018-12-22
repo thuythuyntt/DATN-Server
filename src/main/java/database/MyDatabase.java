@@ -94,7 +94,7 @@ public class MyDatabase {
     
     public ArrayList<Student> getListStudent(){
         ArrayList<Student> lst = new ArrayList<>();
-        String strSQL = "select * from users";
+        String strSQL = "select * from users where role = sv";
         try {
             rs = mConnection.createStatement().executeQuery(strSQL);
             while (rs.next()) {
