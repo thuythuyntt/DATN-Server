@@ -82,7 +82,6 @@ public class MyDatabase {
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    System.out.println("Creating user successfully, ID: " + generatedKeys.getInt(1));
                     return String.valueOf(generatedKeys.getInt(1));
                 } else {
                     System.out.println("Creating user failed, no ID obtained.");
